@@ -1,11 +1,11 @@
 import { JSX } from 'preact'
 import { render as renderPreact } from 'preact-render-to-string'
-// @ts-ignore
-import manifest from '__STATIC_CONTENT_MANIFEST'
 import type { MiddlewareHandler } from 'hono'
-import { bufferToString } from 'hono/utils/buffer'
-import { getContentFromKVAsset } from 'hono/utils/cloudflare'
 import { StatusCode } from 'hono/utils/http-status'
+
+type Env = {
+  ASSETS: Fetcher
+}
 
 export type SSRElement = ({ path }: { path?: string }) => JSX.Element
 
@@ -18,7 +18,7 @@ type SSROptions = {
   hook: Hook
 }
 
-export const ssr = (App: SSRElement, options?: Partial<SSROptions>): MiddlewareHandler => {
+export const ssr = (App: SSRElement, options?: Partial<SSROptions>): MiddlewareHandler<{ Bindings: Env }> => {
   return async (c, next) => {
     const path = new URL(c.req.url).pathname
     let content = renderPreact(<App path={path} />)
@@ -33,12 +33,10 @@ export const ssr = (App: SSRElement, options?: Partial<SSROptions>): MiddlewareH
       }
     }
 
-    const buffer = await getContentFromKVAsset(options?.indexPath || 'public/index.html', {
-      manifest: manifest,
-      namespace: c.env?.__STATIC_CONTENT,
-    })
-
-    const view = bufferToString(buffer!)
+    const indexPath = options?.indexPath || '/index.html'
+    const assetUrl = new URL(indexPath, c.req.url)
+    const res = await c.env.ASSETS.fetch(assetUrl)
+    const view = await res.text()
     let replacer = options?.replacer
 
     if (!replacer) {

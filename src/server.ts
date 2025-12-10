@@ -1,14 +1,15 @@
 import { Hono } from 'hono'
-import { serveStatic } from 'hono/cloudflare-workers'
 import App from './App'
 import api from './api'
 import { ssr } from './ssr/middleware'
 
-const app = new Hono()
+type Env = {
+  ASSETS: Fetcher
+}
+
+const app = new Hono<{ Bindings: Env }>()
 
 app.route('/api', api)
-app.get('/assets/*', serveStatic({ root: './public' }))
-
 app.get('*', ssr(App))
 
 export default app
