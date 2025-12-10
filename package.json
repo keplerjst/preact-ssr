@@ -9,7 +9,7 @@
     "build:watch": "yarn build -w",
     "dev": "vite",
     "wrangler": "wrangler dev --local --live-reload ./src/server.ts",
-    "deploy": "wrangler publish src/server.ts"
+    "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.17.0",
