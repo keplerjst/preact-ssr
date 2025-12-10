@@ -1,7 +1,0 @@
-name = "preact-ssr"
-compatibility_date = "2023-01-01"
-
-main = "src/server.ts"
-
-[assets]
-directory = "./static/public"
