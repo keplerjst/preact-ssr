@@ -12,6 +12,7 @@
     "deploy": "wrangler publish src/server.ts"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251210.0",
     "concurrently": "^8.1.0",
     "preact-helmet": "^4.0.0-alpha-3",
     "vite": "^4.3.9",
