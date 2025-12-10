@@ -1,3 +1,4 @@
+import { Fetcher } from '@cloudflare/workers-types'
 import { Hono } from 'hono'
 import App from './App'
 import api from './api'

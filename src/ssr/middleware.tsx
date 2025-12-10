@@ -1,62 +1,55 @@
-import type { Fetcher } from "@cloudflare/workers-types";
-import type { MiddlewareHandler } from "hono";
-import { StatusCode } from "hono/utils/http-status";
-import { JSX } from "preact";
-import { render as renderPreact } from "preact-render-to-string";
+import type { Fetcher } from '@cloudflare/workers-types'
+import type { MiddlewareHandler } from 'hono'
+import { StatusCode } from 'hono/utils/http-status'
+import { JSX } from 'preact'
+import { render as renderPreact } from 'preact-render-to-string'
 
 type Env = {
-  ASSETS: Fetcher;
-};
+  ASSETS: Fetcher
+}
 
-export type SSRElement = ({ path }: { path?: string }) => JSX.Element;
+export type SSRElement = ({ path }: { path?: string }) => JSX.Element
 
-type HTMLReplacer = (html: string, content: string) => string;
-type Hook = (html: string) => string;
+type HTMLReplacer = (html: string, content: string) => string
 type SSROptions = {
-  indexPath: string;
-  replacer: HTMLReplacer;
-  notFound: SSRElement;
-  hook: Hook;
-};
+  indexPath: string
+  replacer: HTMLReplacer
+  notFound: SSRElement
+}
 
 export const ssr = (
   App: SSRElement,
   options?: Partial<SSROptions>
 ): MiddlewareHandler<{ Bindings: Env }> => {
   return async (c, next) => {
-    const path = new URL(c.req.url).pathname;
-    let content = renderPreact(<App path={path} />);
-    let statusCode: StatusCode = 200;
+    const path = new URL(c.req.url).pathname
+    let content = renderPreact(<App path={path} />)
+    let statusCode: StatusCode = 200
 
-    if (content === "") {
+    if (content === '') {
       if (options?.notFound) {
-        content = renderPreact(options.notFound({ path }));
-        statusCode = 404;
+        content = renderPreact(options.notFound({ path }))
+        statusCode = 404
       } else {
-        return await next();
+        return await next()
       }
     }
 
-    const indexPath = options?.indexPath || "/index.html";
-    const assetUrl = new URL(indexPath, c.req.url);
-    const res = await c.env.ASSETS.fetch(assetUrl.toString());
-    const view = await res.text();
-    let replacer = options?.replacer;
+    const indexPath = options?.indexPath || '/index.html'
+    const assetUrl = new URL(indexPath, c.req.url)
+    const res = await c.env.ASSETS.fetch(assetUrl.toString())
+    const view = await res.text()
+    let replacer = options?.replacer
 
     if (!replacer) {
       replacer = (html: string, content: string) =>
         html.replace(
           /<div id="root"><\/div>/,
           `<div id="root">${content}</div>`
-        );
+        )
     }
+    let html = replacer(view, content)
 
-    let html = replacer(view, content);
-
-    if (options?.hook) {
-      html = options.hook(html);
-    }
-
-    return c.html(html, statusCode);
-  };
-};
+    return c.html(html, statusCode)
+  }
+}
