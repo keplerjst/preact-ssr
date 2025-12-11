@@ -14,7 +14,6 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.17.0",
     "@cloudflare/workers-types": "^4.20251210.0",
-    "concurrently": "^8.1.0",
     "preact-helmet": "^4.0.0-alpha-3",
     "vite": "^6.3.5",
     "wrangler": "^4.17.0"
@@ -22,7 +21,6 @@
   "dependencies": {
     "hono": "^4.10.8",
     "preact": "^10.15.1",
-    "preact-iso": "^2.11.0",
-    "preact-router": "^4.1.1"
+    "preact-iso": "^2.11.0"
   }
 }
