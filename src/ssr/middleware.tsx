@@ -2,7 +2,7 @@ import type { Fetcher } from '@cloudflare/workers-types'
 import type { MiddlewareHandler } from 'hono'
 import { StatusCode } from 'hono/utils/http-status'
 import { JSX } from 'preact'
-import { render as renderPreact } from 'preact-render-to-string'
+import { prerender } from 'preact-iso'
 
 type Env = {
   ASSETS: Fetcher
@@ -23,12 +23,12 @@ export const ssr = (
 ): MiddlewareHandler<{ Bindings: Env }> => {
   return async (c, next) => {
     const path = new URL(c.req.url).pathname
-    let content = renderPreact(<App path={path} />)
+    let content = await prerender(<App path={path} />)
     let statusCode: StatusCode = 200
 
-    if (content === '') {
+    if (content.html === '') {
       if (options?.notFound) {
-        content = renderPreact(options.notFound({ path }))
+        content = await prerender(options.notFound({ path }))
         statusCode = 404
       } else {
         return await next()
@@ -48,7 +48,7 @@ export const ssr = (
           `<div id="root">${content}</div>`
         )
     }
-    let html = replacer(view, content)
+    let html = replacer(view, content.html)
 
     return c.html(html, statusCode)
   }
