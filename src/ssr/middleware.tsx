@@ -43,12 +43,14 @@ export const ssr = (
 
     if (!replacer) {
       replacer = (html: string, content: string) =>
-        html.replace(
-          /<div id="root"><\/div>/,
-          `<div id="root">${content}</div>`
-        )
+        html.replace(/<div id="root"><\/div>/, `<div id="root">${content}</div>`)
     }
+
     let html = replacer(view, content.html)
+
+    if (options?.hook) {
+      html = options.hook(html)
+    }
 
     return c.html(html, statusCode)
   }
