@@ -2,7 +2,7 @@ import type { Fetcher } from '@cloudflare/workers-types'
 import type { MiddlewareHandler } from 'hono'
 import { StatusCode } from 'hono/utils/http-status'
 import { JSX } from 'preact'
-import { prerender } from 'preact-iso'
+import { prerender, locationStub } from 'preact-iso'
 
 type Env = {
   ASSETS: Fetcher
@@ -23,6 +23,7 @@ export const ssr = (
 ): MiddlewareHandler<{ Bindings: Env }> => {
   return async (c, next) => {
     const path = new URL(c.req.url).pathname
+    locationStub(path)
     let content = await prerender(<App path={path} />)
     let statusCode: StatusCode = 200
 
